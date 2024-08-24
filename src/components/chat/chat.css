@@ -1,0 +1,159 @@
+.chat{
+   flex: 2;
+   border-left: 1px solid #fff ;
+   border-right: 1px solid #fff;
+   height: 100%;
+   display: flex;
+   flex-direction: column;
+   
+
+   .top{
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+     border-bottom: 1px solid#dddddd35;
+     
+
+    .user{
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        
+        img{
+            width: 60px;
+            height: 60px;
+            border-radius: 50px;
+            object-fit: cover;
+
+        }
+        .texts{
+            display: flex;
+            flex-direction: column;
+            gap:5px;
+             
+            span{
+                font-size: 18px;
+                font-weight: bold;
+
+            }
+
+            p{
+                font-size: 14px;
+                font-weight: 300;
+                color: #fff;
+            }
+        }
+    }
+      .icons{
+        display: flex;
+        gap: 20px;
+
+        img{
+            width: 20px;
+            height: 20px;
+            cursor:all-scroll;
+
+        }
+    }
+   }
+    .center{
+        padding: 20px;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        overflow: auto;
+        .message{
+            max-width: 70%;
+            display: flex;
+            gap: 20px;
+            &.own{
+                align-self:flex-end;
+                display: flex-right;
+                .texts{
+                    p{
+                        background-color: #5135fe;
+                    }
+            
+                }
+            }    
+            img{
+                width: 30px;
+                height: 30px;
+                border-radius: 50%;
+                object-fit: cover;
+            }
+            .texts{
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+                gap: 5px;
+
+                p{
+                    padding: 20px;
+                    background-color: #383163;
+                    border-radius: 10px;
+                }
+
+                span{
+                    font-size: 10px;
+                }
+            }
+
+            }
+
+
+        }
+    }
+
+
+   .bottom{
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: transparent;
+    align-items: baseline;
+    gap: 20px;
+    color: rgb(0, 0, 0);
+    margin-top: auto;
+     .icons{
+        display: flex;
+        gap:20px;
+     }
+     img{
+        width: 20px;
+        height: 20px;
+        cursor: pointer;
+     }
+        input{
+            color: white;
+            background-color: transparent;
+            padding:  10px;
+            border-radius: 5px;
+            outline: none;
+        
+        }
+        .emoji{
+            position:relative;
+
+            .picker{
+                position: absolute;
+                bottom: 50px;
+                left: 0;
+            }
+
+        }
+        .sendbutton{
+            color: #fff;
+            background-color: transparent;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+
+
+        }
+    }
+   
+
