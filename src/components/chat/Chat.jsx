@@ -42,6 +42,9 @@ const Chat = () => {
             </p>
             <span>1 min ago</span>
           </div>
+
+
+          
         </div>
       
       <div className="message own">
