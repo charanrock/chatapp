@@ -1,114 +1,176 @@
-import { useState } from "react"
+import { useRef, useState, useEffect } from "react"
 import "./chat.css"
 import EmojiPicker from "emoji-picker-react"
+import {
+  doc,
+  LoadBundleTask,
+  onSnapshot,
+} from "firebase/firestore";
+import { db } from "../../lib/firebase";
+import { useChatStore } from "../../lib/chatStore";
 const Chat = () => {
+  const [chat, setChat] = useState();
   const [open, setopen] = useState(false);
   const [text, setText] = useState("");
+  const [img,setImg] = useState({
+    file:null,
+    url:"",
+  });
+
+  const { currentUser } = useUserStore();
+  const { chatId, user, isCurrentUserBlocked,isReceiverBlocked } = useChatStore();
+
+  const endRef = useRef(null);
+
+  useEffect(() => {
+    endRef.current?.scrollIntoView({ behavior: "smooth" });
+
+
+  }, []);
+  useEffect(() => {
+    const unSub = onSnapshot(doc(db, "userchats", chatId), (res) => {
+      console.log(res.data())
+      setChat(res.data());
+
+    })
+    return () => {
+      unSub();
+    };
+
+  }, [chatId])
+  console.log(chat)
 
   const handleemoji = (e) => {
     setText(prev => prev + e.emoji);
     setopen(false)
-
-    console.log(text)
   };
+  const handleImg = e => {
+    if (e.target.files[0]) {
+        setImg({
+            file: e.target.files[0],
+            url: URL.createObjectURL(e.target.files[0])
+        });
+    }
+  };
+  const handleSend = async () => {
+    if (text === "") return;
 
-  return (
-    <div className='chat'>
-      <div className="top">
-        <div className="user">
-          <img src="./avatar.png" alt="" />
-          <div className="texts">
-            <span>jane doe</span>
-            <p>lorem ipsum dolor.sit amet.</p>
-          </div>
+    let(text ==="") return;
 
+    let imgUrl =null
+    try {
+      if(img.file){
 
-        </div>
+        imgUrl =await uploadBytes(img.file);
+      }
+      await updateDoc(doc(db, "chats", chatId), {
+        message: arrayUnion({
+          senderId: currentUser.id,
+          text,
+          createdAt: new Date(),
+          ...(imgUrl && {img: imgUrl}),
 
-        <div className="icons">
-          <img src="./phone.png" alt="" />
-          <img src="./video.png" alt="" />
-          <img src="./info.png" alt="" />
+        })
+      });
 
-        </div>
-      </div>
-      <div className="center">
-        <div className="message">
-          <img src="./avatar.png" alt="" />
-          <div className="texts">
-            <p> Lorem ipsum dolor sit amet consectetur adipisicing elit.
-              Soluta consequuntur atque perspiciatis earum ratione quos temporibus praesentium harum,
-              adipisci impedit ea velit dicta architecto amet. Et animi quam error porro!
-            </p>
-            <span>1 min ago</span>
-          </div>
+      const userIDs = [currentUser.id, user.id];
+      userIDs.forEach(async (id) => {
+        const userChatsRef = doc(db, "userchats", id)
+        const userChatsSnapshot = await getDoc(userChatsRef)
+        if (userChatsSnapshot.exists()) {
+          const userChatsData = userChatsSnapshot.data()
+          const chatINdex = userChatsData.chats.findIndex{
+            (c) => c.chatId === chatId
+        };
 
+        userChatData.chats[chatIndex].lastMessage = text;
+        userChatsData.chats[chatINdex].isSeen = id === currentUser.id ? true:false;
+        userChatsData.chats[chatINdex].updatedAt = Data.now();
+        await updateDoc(userChatsRef, {
+          chat: userChatsData.chats,
+        });
+      })
+    }
 
-          
-        </div>
-      
-      <div className="message own">
+    }catch (err) {
+    console.log(err)
+  }
+
+  setImg({
+    file:null,
+    url:""
+  })
+
+  setText("")
+}
+
+return (
+  <div className='chat'>
+    <div className="top">
+      <div className="user">
+        <img src={user?.avatar||"./avatar.png"} alt="" />
         <div className="texts">
-      
-          <p> Lorem ipsum dolor sit amet consectetur adipisicing elit.
-            Soluta consequuntur atque perspiciatis earum ratione quos temporibus praesentium harum,
-            adipisci impedit ea velit dicta architecto amet. Et animi quam error porro!
-          </p>
-          <span>1 min ago</span>
+          <span>(user?.username)</span>
+          <p>lorem ipsum dolor.sit amet.</p>
         </div>
+
+
       </div>
-      
-        <div className="message">
-          <img src="./avatar.png" alt="" />
+
+      <div className="icons">
+        <img src="./phone.png" alt="" />
+        <img src="./video.png" alt="" />
+        <img src="./info.png" alt="" />
+      </div>
+    </div>
+    <div className="center">
+      {chat?.message?.map((message) => (
+        <div classname={message.senderId===currentUser?.id?"message"} key={message?.createAt}>
+          {message.img && <img
+            src={message.img}
+            alt="" />}
           <div className="texts">
-            <p> Lorem ipsum dolor sit amet consectetur adipisicing elit.
-              Soluta consequuntur atque perspiciatis earum ratione quos temporibus praesentium harum,
-              adipisci impedit ea velit dicta architecto amet. Et animi quam error porro!
+            <p>
+              {message.text}
             </p>
-            <span>1 min ago</span>
+            {/* <span>{message}</span>*/}
           </div>
         </div>
-    
-      <div className="message own">
-        <div className="texts">
-          <p> Lorem ipsum dolor sit amet consectetur adipisicing elit.
-            Soluta consequuntur atque perspiciatis earum ratione quos temporibus praesentium harum,
-            adipisci impedit ea velit dicta architecto amet. Et animi quam error porro!
-          </p>
-          <span>1 min ago</span>
-        </div>
-      </div>
-    
-        <div className="message">
-          <img src="./avatar.png" alt="" />
+      ))}
+      {img.url&&(
+        <div className="message own">
           <div className="texts">
-            <p> Lorem ipsum dolor sit amet consectetur adipisicing elit.
-              Soluta consequuntur atque perspiciatis earum ratione quos temporibus praesentium harum,
-              adipisci impedit ea velit dicta architecto amet. Et animi quam error porro!
-            </p>
-            <span>1 min ago</span>
-          </div>
+            <img src ={img.url} alt =""/>  
+          </div> 
+        </div>
+      )}
+    </div>
+    <div className="bottom">
+      <div className="icons">
+        <lable htmlFor="file">
+         <img src="./img.png" alt="" />
+        </lable>
+        <input type="file" id ="file" style={{display:none}}onChange ={handleImg}/>
+        <img src="./camera.png" alt="" />
+        <img src="./mic.png" alt="" />
+      </div>
+      <input type="text" 
+        placeholder={ (isCurrentUserBlocked || isReceiverBlocked) ? "you cannot send a message" : Type a message..."} 
+        value={text} 
+        onChange={e => setText(e.target.value)}
+        disabled={isCurrentUserBlocked ||isReceiverBlocked}
+      />
+      <div className="emoji">
+        <img src="./emoji.png" alt="" onClick={() => setopen(prev => !prev)} />
+        <div className="picker">
+          <EmojiPicker open={open} onEmojiClick={handleemoji} />
         </div>
       </div>
-      <div className="bottom">
-        <div className="icons">
-          <img src="./img.png" alt="" />
-          <img src="./camera.png" alt="" />
-          <img src="./mic.png" alt="" />
-        </div>
-        <input type="text" placeholder="type a message..." value={text} onChange={e => setText(e.target.value)} />
-        <div className="emoji">
-          <img src="./emoji.png" alt="" onClick={() => setopen(prev => !prev)} />
-          <div className="picker">
-            <EmojiPicker open={open} onEmojiClick={handleemoji} />
-          </div>
-        </div>
-        <button className="sendbutton" onClick={handleemoji}>send</button>
+      <button className="sendbutton" onClick={handleSend} disabled={isCurrentUserBlocked ||isReceiverBlocked}>
+        send</button>
 
+    </div>
 
-
-      </div>
-
-    </div>)
+  </div >)
 }
 export default Chat

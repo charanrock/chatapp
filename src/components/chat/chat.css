@@ -63,7 +63,8 @@
         display: flex;
         flex-direction: column;
         gap: 20px;
-        overflow: auto;
+        overflow:auto;
+
         .message{
             max-width: 70%;
             display: flex;
@@ -133,6 +134,12 @@
             padding:  10px;
             border-radius: 5px;
             outline: none;
+
+            &:disabled{
+                cursor: not-allowed;
+            }
+
+
         
         }
         .emoji{
@@ -151,6 +158,11 @@
             padding: 10px 20px;
             border-radius: 5px;
             cursor: pointer;
+
+            &:disabled{
+                background-color: #5183feb4;
+                cursor: not-allowed;
+            }
 
 
         }
